@@ -1,5 +1,5 @@
 import Navbar from "./navbar/Navbarpage.jsx"
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route,Navigate } from "react-router-dom";
 import AllListings from "./navbar/AllListings.jsx"
 import NewListing from "./navbar/NewListing.jsx"
 import ShowListing from "./navbar/ShowListing.jsx"
@@ -19,7 +19,7 @@ return (
       <Navbar/>
       <hr />
       <Routes> 
-      <Route path="/" element={<Homepage />} />
+      <Route index element={<Homepage />} />
       <Route path="/Edit/:id" element={<Edit />} />
       <Route path="/AllListings" element={<AllListings />} />
       <Route path="/NewListing" element={<NewListing />} />
