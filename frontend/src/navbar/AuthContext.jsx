@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+const backendUrl = import.meta.env.VITE_BACKEND_URL; 
 
 const AuthContext = createContext();
 
@@ -8,8 +9,7 @@ export function AuthProvider({ children }) {
 
   const checkLogin = async () => {
     try {
-      const res = await fetch(
-        "http://localhost:5000/auth/me",
+      const res = await fetch(`${backendUrl}/auth/me`,
         { credentials: "include" }
       );
 

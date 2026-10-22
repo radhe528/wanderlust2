@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "./AuthContext";
+const backendUrl = import.meta.env.VITE_BACKEND_URL; 
 
 
 export default function Login() {
@@ -28,7 +29,7 @@ export default function Login() {
 
     try {
       const res = await fetch(
-        "http://localhost:5000/auth/login",
+        `${backendUrl}/auth/login`,
         {
           method: "POST",
           headers: {

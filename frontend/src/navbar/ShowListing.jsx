@@ -5,7 +5,9 @@ import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "./AuthContext";
 import "./ShowListing.css";
+const backendUrl = import.meta.env.VITE_BACKEND_URL; 
  
+
 
 function ShowListing() {
 const { user, setUser, loading } = useAuth();
@@ -21,7 +23,7 @@ useEffect(() => {
     async function fetchListing() {
       try {
         const res = await fetch(
-          `http://localhost:5000/api/Show/${id}`
+          `${backendUrl}/api/Show/${id}`
         );
 
     if(!res.ok){
@@ -45,7 +47,7 @@ if (!listing) return <p>Loading...</p>;
 const handleComplete = async (id) => {
   try {
     const res = await fetch(
-      `http://localhost:5000/api/isDone/${id}`,
+      `${backendUrl}/api/isDone/${id}`,
       {
         method: "PATCH",
         credentials: "include",
@@ -80,7 +82,7 @@ const handleComplete = async (id) => {
 const handleDelete = async (id) => {
   try {
     const res = await fetch(
-      `http://localhost:5000/api/delete/${id}`,
+      `${backendUrl}/api/delete/${id}`,
       {
         method: "DELETE",
         credentials: "include",
@@ -108,7 +110,7 @@ const handleSubmit = async (e) => {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/review/create/${id}`,
+        `${backendUrl}/review/create/${id}`,
         {
           method: "POST",
           headers: {
@@ -138,7 +140,7 @@ setListing(data.updateListing);
 const handleDeleteReview = async (reviewId) => {
   try {
     const res = await fetch(
-      `http://localhost:5000/review/deleteReview/${listing._id}/${reviewId}`,
+      `${backendUrl}/review/deleteReview/${listing._id}/${reviewId}`,
       {
         method: "DELETE",
         credentials: "include",

@@ -4,6 +4,8 @@ import toast from "react-hot-toast";
 import { useAuth } from "./AuthContext";
 import { NavLink } from "react-router-dom";
 import "./Navbar.css"
+const backendUrl = import.meta.env.VITE_BACKEND_URL; 
+
 
 export default function Home() {
    const { user, setUser, loading } = useAuth();
@@ -12,7 +14,7 @@ export default function Home() {
   const handleLogout = async () => {
     try {
       const res = await fetch(
-        "http://localhost:5000/auth/logout",
+        `${backendUrl}/auth/logout`,
         {
           method: "POST",
           credentials: "include",

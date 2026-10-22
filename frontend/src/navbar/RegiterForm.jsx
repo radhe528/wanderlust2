@@ -2,6 +2,9 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "./AuthContext";
+const backendUrl = import.meta.env.VITE_BACKEND_URL; 
+
+
 
 export default function Register() {
   const navigate = useNavigate();
@@ -28,7 +31,7 @@ const { setUser } = useAuth();
 
     try {
       const res = await fetch(
-        "http://localhost:5000/auth/register",
+       `${backendUrl}/auth/register`,
         {
           method: "POST",
           headers: {

@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
  
 import toast from "react-hot-toast";
 import { useAuth } from "./AuthContext";
+const backendUrl = import.meta.env.VITE_BACKEND_URL; 
+
 
 
 function App() {
@@ -14,7 +16,7 @@ const {user} = useAuth();
     e.preventDefault();
     if (!title.trim()) return;
     try {
-      const res = await fetch("http://localhost:5000/api/create", {
+      const res = await fetch(`${backendUrl}/api/create`, {
         credentials: "include",
         method: "POST",
         headers: {

@@ -14,7 +14,7 @@ const AllListing =  ()=>{
 return (
     <>
     <div style={{color:"white"}}> 
-      <Toaster position="top-center" />
+      <Toaster position="bottom-right" />
       <hr />
       <Navbar/>
       <hr />

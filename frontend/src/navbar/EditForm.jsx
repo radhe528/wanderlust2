@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "./AuthContext";
+const backendUrl = import.meta.env.VITE_BACKEND_URL; 
 
 
 function App() {
@@ -22,9 +23,7 @@ const [liting, setLiting] = useState({});
 useEffect(() => {
     async function fetchListing() {
       try {
-        const res = await fetch(
-          `http://localhost:5000/api/Show/${id}`
-        );
+        const res = await fetch(`${backendUrl}/api/Show/${id}`);
 
         if (!res.ok) {
           throw new Error("Listing not found");
@@ -50,7 +49,7 @@ const addTodo = async (e) => {
      if (!((liting.title).trim())) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/Edit/${id}`, {
+      const res = await fetch(`${backendUrl}/api/Edit/${id}`, {
         method: "PATCH",
         credentials: "include",
         headers: {
