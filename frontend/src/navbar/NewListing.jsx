@@ -4,14 +4,13 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "./AuthContext";
 const backendUrl = import.meta.env.VITE_BACKEND_URL; 
-
-
-
 function App() {
 const navigate = useNavigate();
 const {user} = useAuth();
 
    const [title, setTitle] = useState("");
+
+
    const addTodo = async (e) => {
     e.preventDefault();
     if (!title.trim()) return;
