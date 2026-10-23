@@ -1,4 +1,5 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "./AuthContext";
 import "./Navbar.css";
@@ -8,6 +9,20 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL;
 export default function Navbar() {
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
+  const [theme, setTheme] = useState(() => {
+    const savedTheme = window.localStorage.getItem("wanderlist-theme");
+    return savedTheme === "dark" ? "dark" : "light";
+  });
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+    window.localStorage.setItem("wanderlist-theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((currentTheme) => currentTheme === "dark" ? "light" : "dark");
+  };
 
   const handleLogout = async () => {
     try {
@@ -52,6 +67,15 @@ export default function Navbar() {
         </nav>
 
         <div className="nav-account">
+          <button
+            className="theme-toggle"
+            type="button"
+            onClick={toggleTheme}
+            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+            title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+          >
+            <span aria-hidden="true">{theme === "dark" ? "☀" : "☾"}</span>
+          </button>
           {user ? (
             <>
               <span className="welcome-user">

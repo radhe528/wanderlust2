@@ -1010,3 +1010,108 @@
     padding: 30px;
   }
 }
+
+:root[data-theme="dark"] .secondary-button,
+:root[data-theme="dark"] .auth-card,
+:root[data-theme="dark"] .editor-panel,
+:root[data-theme="dark"] .detail-card,
+:root[data-theme="dark"] .preview-card,
+:root[data-theme="dark"] .floating-note {
+  border-color: var(--line);
+  background: var(--paper);
+}
+
+:root[data-theme="dark"] .empty-state,
+:root[data-theme="dark"] .error-state,
+:root[data-theme="dark"] .hero-pill,
+:root[data-theme="dark"] .review-form,
+:root[data-theme="dark"] .review-card {
+  border-color: var(--line);
+  background: #1b241e;
+}
+
+:root[data-theme="dark"] .hero-visual::before {
+  background: #22332a;
+}
+
+:root[data-theme="dark"] .visual-orbit {
+  border-color: rgba(131, 197, 155, 0.2);
+}
+
+:root[data-theme="dark"] .hero-pill,
+:root[data-theme="dark"] .auth-benefit,
+:root[data-theme="dark"] .form-field,
+:root[data-theme="dark"] .detail-date strong,
+:root[data-theme="dark"] .reviews-container h3,
+:root[data-theme="dark"] .review-card p,
+:root[data-theme="dark"] .preview-task strong,
+:root[data-theme="dark"] .floating-note {
+  color: #c4d0c7;
+}
+
+:root[data-theme="dark"] .avatar-stack span,
+:root[data-theme="dark"] .auth-benefit-mark,
+:root[data-theme="dark"] .listing-meta-avatar {
+  color: #b4d9bd;
+  background: #2d4435;
+}
+
+:root[data-theme="dark"] .avatar-stack span:nth-child(2) {
+  color: #e8c68d;
+  background: #493d29;
+}
+
+:root[data-theme="dark"] .avatar-stack span:nth-child(3) {
+  color: #d0b4e4;
+  background: #40334b;
+}
+
+:root[data-theme="dark"] .preview-task,
+:root[data-theme="dark"] .detail-dates {
+  border-color: var(--line);
+}
+
+:root[data-theme="dark"] .task-check {
+  border-color: #526258;
+}
+
+:root[data-theme="dark"] .preview-progress > span {
+  background: #344239;
+}
+
+:root[data-theme="dark"] .form-field input,
+:root[data-theme="dark"] .form-field textarea,
+:root[data-theme="dark"] .form-field select {
+  border-color: #3b4b40;
+  color: var(--ink);
+  background: #18211b;
+}
+
+:root[data-theme="dark"] .form-field input::placeholder,
+:root[data-theme="dark"] .form-field textarea::placeholder {
+  color: #84948a;
+}
+
+:root[data-theme="dark"] .status-badge {
+  color: #e8c68d;
+  background: #493d29;
+}
+
+:root[data-theme="dark"] .status-badge.complete {
+  color: #b4d9bd;
+  background: #2d4435;
+}
+
+:root[data-theme="dark"] .danger-button {
+  color: #ffb4a9;
+  border-color: #60403b;
+  background: #372725;
+}
+
+:root[data-theme="dark"] .danger-button:hover {
+  background: #49302c;
+}
+
+:root[data-theme="dark"] .review-delete {
+  color: #ffb4a9;
+}
