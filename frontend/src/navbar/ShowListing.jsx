@@ -4,15 +4,15 @@ import { Link } from "react-router-dom";
  
 import toast from "react-hot-toast";
 import { useAuth } from "./AuthContext";
-import "./ShowListing.css";
 const backendUrl = import.meta.env.VITE_BACKEND_URL; 
  
 
 
 function ShowListing() {
-const { user, setUser, loading } = useAuth();
+const { user } = useAuth();
 const { id } = useParams();
 const [listing, setListing] = useState(null);
+const [loadError, setLoadError] = useState("");
 const [comment, setComment] = useState("");
 const [rating, setRating] = useState(5);
 const navigate = useNavigate();
@@ -27,21 +27,25 @@ useEffect(() => {
         );
 
     if(!res.ok){
-        const {message} = await res.json();
-         toast.error(message)
-        return 
+        const data = await res.json();
+        throw new Error(data.message || "Could not load this listing.");
     }
       const data = await res.json();
          setListing(data);
       } catch (err) {
         console.error(err);
+        setLoadError(err.message || "Could not load this listing.");
       }
     }
 
     fetchListing();
   }, [id]);
 
-if (!listing) return <p>Loading...</p>;
+if (!listing) {
+  return loadError ? (
+    <div className="error-state"><h2>Couldn’t load this listing</h2><p>{loadError}</p><Link to="/AllListings">Back to listings</Link></div>
+  ) : <p className="loading-state">Loading listing…</p>;
+}
 
  
 const handleComplete = async (id) => {
@@ -68,11 +72,13 @@ const handleComplete = async (id) => {
     const updatedTodo = await res.json();
   toast.success("Task completed successfully!");
 
-    setListing(() =>
-          updatedTodo
-    );
+    setListing((currentListing) => ({
+      ...currentListing,
+      completed: updatedTodo.completed,
+    }));
   } catch (err) {
     console.error(err);
+    toast.error(err.message || "Could not complete listing.");
   }
 
  
@@ -101,6 +107,7 @@ toast.success("Listing deleted successfully")
 navigate("/AllListings")
   } catch (err) {
     console.error(err);
+    toast.error(err.message || "Could not delete listing.");
   }
 };
 
@@ -171,121 +178,89 @@ const handleDeleteReview = async (reviewId) => {
 
 
 return (
+  <section className="detail-panel">
+    <article className="detail-card">
+      <p className="eyebrow">Your listing</p>
+      <div className="detail-status-row">
+        <span className={`status-badge${listing.completed ? " complete" : ""}`}>
+          {listing.completed ? "Completed" : "In progress"}
+        </span>
+        <span className="detail-author">
+          <span className="listing-meta-avatar">{listing.author?.username?.charAt(0).toUpperCase() || "W"}</span>
+          Created by {listing.author?.username || "Unknown"}
+        </span>
+      </div>
+      <h1 className="detail-title">{listing.title}</h1>
 
-<> 
-<div>
-      <h1>{listing.title}</h1>
-      <p>Created By : {listing.author.username}</p> <br />
-      <p>{listing.completed ? "Complete" : "NoteComplete"}</p>
-  
-      <p>
-  Created At: {new Date(listing.createdAt).toLocaleString("en-IN", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true
-  })}
-</p>
-
-<p>
-  UpdatedAt At: {new Date(listing.updatedAt).toLocaleString("en-IN", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true
-  })}
-</p>
-<br />
-
-{user &&  (<> {user.username===listing.author.username && ( 
-    <> 
-    {!listing.completed && (
-      <button onClick={() => handleComplete(listing._id)} style={{backgroundColor:"green"}}>
-        Mark Complete
-      </button>
-    )}
-{" "}
-    <button style={{backgroundColor:"red"}} onClick={() => handleDelete(listing._id)}>Delete</button>{" "}
-    <button style={{backgroundColor:"blue", color:"yellow"}}><Link to={`/Edit/${listing._id}`} style={{textDecoration:"none",color:"yellow"}}>Edit</Link></button>
-</>
-)}
-</>)}
-<p></p>
-
-<br />
-<hr />
-
-{user && (<> 
-<h2> Review...</h2>
-  <form onSubmit={handleSubmit}>
-      <label>Rating (1–5)</label>
-      <select
-        value={rating}
-        onChange={(e) => setRating(Number(e.target.value))}
-      >
-        {[1, 2, 3, 4, 5].map((n) => (
-          <option key={n} value={n}>{n} Star</option>
-        ))}
-      </select><h1></h1>
-<p></p>
-      <textarea
-        placeholder="Write your review..."
-        value={comment}
-        onChange={(e) => setComment(e.target.value)}
-        required
-      />
-<p></p>
-      <button type="submit">Submit Review</button>
-    </form>
-</>)}
-
-
-
- <div className="reviews-container">
-  <h3>What people say</h3>
-
-  <div className="reviews-grid">
-{listing.reviews.map((review) => {
-  return (
-    <div key={review._id}>
-      <div className="review-card">
-        <h4>{review.author?.username || "Anonymous"}</h4>
-
-        <p className="review-rating">
-          {"★".repeat(review.rating)}
-          {"☆".repeat(5 - review.rating)}
-        </p>
-
-        <p>{review.comment} <br />
-
-        {user && (<> { user.username===review.author.username && (
-          <button onClick={() => handleDeleteReview(review._id)}>
-          Delete Review
-        </button>)
-        }</>)}
-
-        </p>
-        
+      <div className="detail-dates">
+        <div className="detail-date">
+          <span>Created</span>
+          <strong>{new Date(listing.createdAt).toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</strong>
+        </div>
+        <div className="detail-date">
+          <span>Last updated</span>
+          <strong>{new Date(listing.updatedAt).toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</strong>
+        </div>
       </div>
 
-     
-    </div>
-  );
-})}
+      {user?.username === listing.author?.username && (
+        <div className="detail-actions">
+          {!listing.completed && (
+            <button className="primary-button" onClick={() => handleComplete(listing._id)}>
+              ✓ Mark complete
+            </button>
+          )}
+          <Link className="secondary-button" to={`/Edit/${listing._id}`}>Edit listing</Link>
+          <button className="danger-button" onClick={() => handleDelete(listing._id)}>Delete listing</button>
+        </div>
+      )}
+    </article>
 
+    <section className="review-section">
+      <h2>Share a thought</h2>
+      {user ? (
+        <form className="review-form" onSubmit={handleSubmit}>
+          <label className="form-field" htmlFor="review-rating">Your rating
+            <select id="review-rating" value={rating} onChange={(e) => setRating(Number(e.target.value))}>
+              {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n} {n === 1 ? "star" : "stars"}</option>)}
+            </select>
+          </label>
+          <label className="form-field" htmlFor="review-comment">Your review
+            <textarea
+              id="review-comment"
+              placeholder="What would you like to share?"
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              required
+            />
+          </label>
+          <button className="primary-button" type="submit">Post review</button>
+        </form>
+      ) : (
+        <p className="auth-subtitle">Sign in to leave a review.</p>
+      )}
 
-  </div>
-</div>
-
-
-</div>
-</>
-
-)}
+      <div className="reviews-container">
+        <h3>{listing.reviews.length ? "Community notes" : "No reviews yet — you can be the first."}</h3>
+        <div className="reviews-grid">
+          {listing.reviews.map((review) => (
+            <article className="review-card" key={review._id}>
+              <h4>{review.author?.username || "Anonymous"}</h4>
+              <p className="review-rating" aria-label={`${review.rating} out of 5 stars`}>
+                {"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}
+              </p>
+              <p>{review.comment}</p>
+              {user?.username === review.author?.username && (
+                <button className="review-delete" onClick={() => handleDeleteReview(review._id)}>Delete review</button>
+              )}
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  </section>
+);
+}
 
 
 export default ShowListing;
