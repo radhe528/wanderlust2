@@ -15,6 +15,7 @@ const [listing, setListing] = useState(null);
 const [loadError, setLoadError] = useState("");
 const [comment, setComment] = useState("");
 const [rating, setRating] = useState(5);
+const [expandedReviewIds, setExpandedReviewIds] = useState(() => new Set());
 const navigate = useNavigate();
 
 
@@ -243,18 +244,41 @@ return (
       <div className="reviews-container">
         <h3>{listing.reviews.length ? "Community notes" : "No reviews yet — you can be the first."}</h3>
         <div className="reviews-grid">
-          {listing.reviews.map((review) => (
-            <article className="review-card" key={review._id}>
-              <h4>{review.author?.username || "Anonymous"}</h4>
-              <p className="review-rating" aria-label={`${review.rating} out of 5 stars`}>
-                {"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}
-              </p>
-              <p>{review.comment}</p>
-              {user?.username === review.author?.username && (
-                <button className="review-delete" onClick={() => handleDeleteReview(review._id)}>Delete review</button>
-              )}
-            </article>
-          ))}
+          {listing.reviews.map((review) => {
+            const isLong = review.comment.length > 180;
+            const isExpanded = expandedReviewIds.has(review._id);
+
+            return (
+              <article className="review-card" key={review._id}>
+                <h4>{review.author?.username || "Anonymous"}</h4>
+                <p className="review-rating" aria-label={`${review.rating} out of 5 stars`}>
+                  {"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}
+                </p>
+                <p className={`review-comment${isExpanded ? " expanded" : ""}`}>{review.comment}</p>
+                {isLong && (
+                  <button
+                    className="review-more"
+                    type="button"
+                    aria-expanded={isExpanded}
+                    onClick={() => setExpandedReviewIds((current) => {
+                      const next = new Set(current);
+                      if (isExpanded) {
+                        next.delete(review._id);
+                      } else {
+                        next.add(review._id);
+                      }
+                      return next;
+                    })}
+                  >
+                    {isExpanded ? "Less" : "More"}
+                  </button>
+                )}
+                {user?.username === review.author?.username && (
+                  <button className="review-delete" onClick={() => handleDeleteReview(review._id)}>Delete review</button>
+                )}
+              </article>
+            );
+          })}
         </div>
       </div>
     </section>
