@@ -88,14 +88,17 @@ module.exports.userLogin =   (req, res, next) => {
 
 module.exports.checkLogin =   (req, res) => {
   if (!req.isAuthenticated()) {
-    return res.status(401).json({
+    return res.status(200).json({
       success: false,
+      authenticated: false,
+      user: null,
       message: "Not logged in",
     });
   }
 
   res.json({
     success: true,
+    authenticated: true,
     user: {
       id: req.user._id,
       username: req.user.username,
@@ -120,7 +123,6 @@ module.exports.userLogout =   (req, res, next) => {
     });
   });
 }
-
 
 
 

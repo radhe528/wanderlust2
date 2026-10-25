@@ -1,66 +1,87 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-const backendUrl = import.meta.env.VITE_BACKEND_URL; 
+import { useAuth } from "./AuthContext";
 
-function App() {
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+function AllListings() {
+  const { user } = useAuth();
   const [todos, setTodos] = useState([]);
-  const [title, setTitle] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // Backend se todos fetch karna
   useEffect(() => {
-        fetch(`${backendUrl}/api/find`)
+    let isCurrent = true;
 
-    // fetch("http://localhost:5000/api/find")
+    fetch(`${backendUrl}/api/find`)
       .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch todos");
+        if (!res.ok) throw new Error("We couldn’t load your listings. Please try again.");
         return res.json();
       })
-      .then((data) => setTodos(data))
-      .catch((err) => console.error(err));
-  }, []);
-
-  // Naya todo create karna
-  const addTodo = async (e) => {
-    e.preventDefault();
-
-    if (!title.trim()) return;
-
-    try {
-      const res = await fetch(`${backendUrl}/api/todos`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ title })
+      .then((data) => {
+        if (isCurrent) setTodos(data);
+      })
+      .catch((err) => {
+        console.error(err);
+        if (isCurrent) setError(err.message);
+      })
+      .finally(() => {
+        if (isCurrent) setLoading(false);
       });
 
-      if (!res.ok) throw new Error("Failed to add todo");
-
-      const newTodo = await res.json();
-
-      setTodos((prevTodos) => [...prevTodos, newTodo]);
-      setTitle("");
-    } catch (err) {
-      console.error(err);
-    }
-  };
+    return () => {
+      isCurrent = false;
+    };
+  }, []);
 
   return (
-    <> 
+    <section>
+      <div className="page-heading listings-toolbar">
+        <div>
+          <p className="eyebrow">Your collection</p>
+          <h1>All listings</h1>
+          <p>Everything you’re working on, gathered in one place.</p>
+        </div>
+        <Link className="primary-button" to={user ? "/NewListing" : "/Login"}>
+          {user ? "＋ Create listing" : "＋ Sign in to create"}
+        </Link>
+      </div>
 
-{todos.map((todo) => {
-return ( 
-    <div key={todo._id}  >
-     <h2 style={{color: (todo.completed && "red")}}>{todo.title}</h2> 
-     <Link to={`/ShowListing/${todo._id}`}><button style={{color:"yellow"}}  >See</button> </Link>  
-     <p></p><br />
-    </div>
-     )     
-})}
-    
-    </>
+      {loading ? (
+        <p className="loading-state">Gathering your listings…</p>
+      ) : error ? (
+        <div className="error-state"><h2>Couldn’t load listings</h2><p>{error}</p></div>
+      ) : todos.length === 0 ? (
+        <div className="empty-state">
+          <h2>Your next idea starts here</h2>
+          <p>Create a listing to get your plans moving.</p>
+          <Link className="primary-button" to={user ? "/NewListing" : "/Login"} style={{ marginTop: 18 }}>
+            {user ? "Create your first listing" : "Sign in to create a listing"}
+          </Link>
+        </div>
+      ) : (
+        <div className="listing-grid">
+          {todos.map((todo) => (
+            <Link className="listing-card" key={todo._id} to={`/ShowListing/${todo._id}`}>
+              <div className="listing-card-top">
+                <span className={`status-badge${todo.completed ? " complete" : ""}`}>
+                  {todo.completed ? "Completed" : "In progress"}
+                </span>
+                <span className="listing-arrow" aria-hidden="true">↗</span>
+              </div>
+              <h2>{todo.title}</h2>
+              <p>{todo.completed ? "Nicely done. This one is complete." : "A little progress is still progress."}</p>
+              <div className="listing-meta">
+                <span className="listing-meta-avatar">{todo.author?.username?.charAt(0).toUpperCase() || "W"}</span>
+                <span>{todo.author?.username || "Your listing"}</span>
+                {todo.createdAt && <><span>·</span><span>{new Date(todo.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</span></>}
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
 
-export default App;
+export default AllListings;

@@ -7,16 +7,18 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 
 function App() {
-const {user} = useAuth();
+const { user, loading: authLoading } = useAuth();
 const navigate = useNavigate();
 const { id } = useParams();
+const [isLoading, setIsLoading] = useState(true);
+const [loadError, setLoadError] = useState("");
 
 useEffect(() => {
-  if (!user) {
+  if (!authLoading && !user) {
     toast.error("Log in first to edit listing");
      navigate(`/ShowListing/${id}`, { replace: true });
   }
-}, [user, navigate]);
+}, [user, authLoading, id, navigate]);
 
 const [liting, setLiting] = useState({});
   
@@ -30,13 +32,14 @@ useEffect(() => {
         }
 
         const data = await res.json();
-        // console.log(data)
         setLiting(data);
       } catch (err) {
         console.error(err);
+        setLoadError(err.message || "Could not load this listing.");
+      } finally {
+        setIsLoading(false);
       }
     }
-// console.log(title)
     fetchListing();
 }, [id]);
 
@@ -46,7 +49,7 @@ setLiting((pre)=> {return {...pre,[e.target.name]: e.target.value}})
 
 const addTodo = async (e) => {
     e.preventDefault();
-     if (!((liting.title).trim())) return;
+     if (!(liting.title || "").trim()) return;
 
     try {
       const res = await fetch(`${backendUrl}/api/Edit/${id}`, {
@@ -64,35 +67,41 @@ const addTodo = async (e) => {
     return ;
     }
 
-      const newTodo = await res.json();
+      await res.json();
        toast.success("Listing Edited successfully")
- 
-       setLiting("");
     } catch (err) {
       console.error(err);
+      toast.error(err.message || "Could not update listing.");
+      return;
     }
     navigate(`/ShowListing/${id}`);
 };
 
    return (
-    <>
-    <div style={{ maxWidth: "500px", margin: "40px auto" }}>
-      <h1>Edit Todo </h1>
-
-      <form onSubmit={addTodo}>
-        <input
-          type="text"
-          name="title"
-          placeholder="Enter a todo..."
-          value={liting.title || ""}
-          onChange={add}
-        />
-<p></p><br />
-
-        <button type="submit" style={{backgroundColor:"green", color:"red"}}>Submit</button>
-      </form>
-      <br />
-    </div> </>
+    <section className="editor-panel">
+      <p className="eyebrow">Make it yours</p>
+      <h1>Edit listing</h1>
+      <p>Give your plan a quick update.</p>
+      {isLoading ? <p className="loading-state">Loading listing…</p> : loadError ? (
+        <div className="error-state"><h2>Couldn’t load this listing</h2><p>{loadError}</p></div>
+      ) : (
+        <form className="app-form" onSubmit={addTodo}>
+          <label className="form-field" htmlFor="edit-title">Listing title
+            <input
+              id="edit-title"
+              type="text"
+              name="title"
+              placeholder="What are you working on?"
+              value={liting.title || ""}
+              onChange={add}
+              maxLength={120}
+              required
+            />
+          </label>
+          <button className="primary-button form-submit" type="submit">Save changes</button>
+        </form>
+      )}
+    </section>
   );
 }
 

@@ -1,19 +1,19 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
  
 import toast from "react-hot-toast";
-import { useAuth } from "./AuthContext";
 const backendUrl = import.meta.env.VITE_BACKEND_URL; 
 function App() {
 const navigate = useNavigate();
-const {user} = useAuth();
 
    const [title, setTitle] = useState("");
+   const [isSubmitting, setIsSubmitting] = useState(false);
 
 
    const addTodo = async (e) => {
     e.preventDefault();
-    if (!title.trim()) return;
+    if (!title.trim() || isSubmitting) return;
+    setIsSubmitting(true);
     try {
       const res = await fetch(`${backendUrl}/api/create`, {
         credentials: "include",
@@ -25,42 +25,46 @@ const {user} = useAuth();
       });
 
       if(!res.ok){
-        const {message} = await res.json();
-        toast.error(message);
-        return;
+        const data = await res.json();
+        throw new Error(data.message || "Could not create listing.");
       }
  
-  toast.success("Listing created successfully!");
-        setTitle("");
+      toast.success("Listing created successfully!");
+      setTitle("");
+      navigate("/AllListings");
      } catch (err) {
        console.error(err);
-        toast.error("Failed to create listing!");
+       toast.error(err.message || "Failed to create listing!");
+     } finally {
+       setIsSubmitting(false);
      }
-      navigate("/AllListings");
   };
 
 
 
   return (
-    <>
+    <section className="editor-panel">
+      <p className="eyebrow">A fresh start</p>
+      <h1>Create a listing</h1>
+      <p>Capture what you want to get done. You can update it anytime.</p>
 
-    <div style={{ maxWidth: "500px", margin: "40px auto" }}>
-      <h1>My Todo List</h1>
-
-      <form onSubmit={addTodo}>
-        <label htmlFor="Title" >Enter Title</label>{" "}
+      <form className="app-form" onSubmit={addTodo}>
+        <label className="form-field" htmlFor="Title">What would you like to work on?
         <input
           id="Title"
           type="text"
-          placeholder="Enter a todo..."
+          placeholder="e.g. Plan a weekend getaway"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}/>{" "}
-
-        <button type="submit" style={{backgroundColor:"green", color:"red"}}>Add Todo</button>
+          onChange={(e) => setTitle(e.target.value)}
+          maxLength={120}
+          required
+        />
+        </label>
+        <button className="primary-button form-submit" type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Creating…" : <>Create listing <span aria-hidden="true">→</span></>}
+        </button>
       </form>
-      <br />
- 
-    </div> </>
+    </section>
   );
 }
 
