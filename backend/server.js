@@ -13,7 +13,6 @@ const User = require("./models/User");
 const ExpressError = require("./utils/ExpressError.js")
 
 
-  
 const app = express();
 app.set('trust proxy', 1);
 
